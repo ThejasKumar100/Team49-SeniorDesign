@@ -6,7 +6,7 @@ Authors:
 - Thejaswin Kumaran
 - Vaishnavi Pasumarthi
 - Rochan Vanam
-- Mytri Nai
+- Mytri Nair
 - Kaavya Jampana
 - Blessing Ogunfowora
 
@@ -184,7 +184,24 @@ private static final String PASSWORD = "YOUR_PASSWORD";
 
 ---
 
-# 8. Run the Project
+# 8. Install JavaFX
+
+JavaFX is required to run the GUI frontend. Install via Homebrew:
+
+```bash
+brew install openjdk
+```
+
+Then download the JavaFX SDK:
+
+1. Go to: https://gluonhq.com/products/javafx/
+2. Download the **Mac** version (arm64 for M1/M2/M3 Macs, x86 64 for Intel)
+3. Extract the SDK (e.g., `javafx-sdk-26/`)
+4. Remember the path (e.g., `~/javafx-sdk-26/lib`)
+
+---
+
+# 9. Run the Project
 
 ## Compile and Run (Terminal)
 
@@ -208,13 +225,13 @@ Do not use "Run Code".
 
 ---
 
-# 9. Import a Gutenberg Book
+# 10. Import a Gutenberg Book
 
 Download a `.txt` file (example):
 
 https://www.gutenberg.org/cache/epub/1342/pg1342.txt
 
-Save it locally, then in the program:
+Save it locally, then in the terminal program:
 
 * choose "Import text file"
 * enter full file path
@@ -227,7 +244,55 @@ Example:
 
 ---
 
-# Troubleshooting
+# 11. JavaFX GUI (Recommended)
+
+Use this for the interactive text editor with autocomplete suggestions.
+
+**Note:** It's recommended to import a text file first (see section 10) to populate the database with word relationships.
+
+## Compile and Run
+
+**Compile:**
+```bash
+javac --module-path ~/javafx-sdk-26/lib --add-modules javafx.controls -cp "src:lib/*" $(find src -name "*.java")
+```
+
+**Run:**
+```bash
+java --module-path ~/javafx-sdk-26/lib --add-modules javafx.controls -cp "src:lib/*" TextEditorUI
+```
+
+**Or both compile and run together:**
+```bash
+javac --module-path ~/javafx-sdk-26/lib --add-modules javafx.controls -cp "src:lib/*" $(find src -name "*.java") && java --module-path ~/javafx-sdk-26/lib --add-modules javafx.controls -cp "src:lib/*" TextEditorUI
+```
+
+**Note:** Replace `~/javafx-sdk-26/lib` with your actual JavaFX SDK lib path if different.
+
+## How to Use
+
+1. **Start the application** using one of the commands above
+
+2. **Type in the text editor:**
+   - A large text area appears at the top
+   - Type naturally
+
+3. **Get autocomplete suggestions:**
+   - As you type, the last word triggers suggestions
+   - 4 suggestions appear at the bottom in a dark gray bar
+
+4. **Click a suggestion:**
+   - Click any suggestion button to insert it
+   - A space is automatically added
+   - Suggestions update for the newly inserted word
+
+5. **No suggestions?**
+   - If a word has no followers in the database, buttons are empty and appear grayed out
+   - Import more text (see section 10) or use a different word
+
+---
+
+# 12. Troubleshooting
 
 ## No suitable driver
 
@@ -255,7 +320,7 @@ Example:
 
 ---
 
-# Summary
+# 13. Summary
 
 This project requires:
 
