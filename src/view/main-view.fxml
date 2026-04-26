@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="14"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controller.MainController"
+      style="-fx-background-color: #0f1028;">
+
+    <padding>
+        <Insets top="18" right="18" bottom="18" left="18"/>
+    </padding>
+
+    <VBox spacing="6"
+          style="-fx-background-color: #161742; -fx-background-radius: 16; -fx-padding: 18;">
+        <Label text="Sentence Builder"
+               style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #fff7d6;"/>
+
+        <Label text="JavaFX + MySQL word generation system"
+               style="-fx-font-size: 14px; -fx-text-fill: #facc15;"/>
+
+        <Label fx:id="statusLabel"
+               text="Ready."
+               style="-fx-font-size: 13px; -fx-text-fill: #ffffff;"/>
+    </VBox>
+
+    <TabPane tabClosingPolicy="UNAVAILABLE"
+             VBox.vgrow="ALWAYS"
+             style="-fx-background-color: #0f1028;">
+
+        <Tab text="Import">
+            <VBox spacing="14"
+                  style="-fx-background-color: #161742; -fx-background-radius: 14; -fx-padding: 22;">
+                <Label text="Import Text File"
+                       style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #fff7d6;"/>
+
+                <Label text="Choose a text-only Gutenberg file or another plain .txt file."
+                       wrapText="true"
+                       style="-fx-text-fill: #ffffff;"/>
+
+                <HBox spacing="10">
+                    <TextField fx:id="filePathField"
+                               promptText="Path to .txt file"
+                               prefWidth="700"
+                               style="-fx-background-color: #0f1028; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #a3a3c2; -fx-border-color: #facc15; -fx-border-radius: 8;"/>
+
+                    <Button text="Browse"
+                            onAction="#handleBrowseFile"
+                            style="-fx-background-color: #facc15; -fx-text-fill: #0f1028; -fx-font-weight: bold;"/>
+
+                    <Button text="Import"
+                            onAction="#handleImportFile"
+                            style="-fx-background-color: #d4a900; -fx-text-fill: #0f1028; -fx-font-weight: bold;"/>
+                </HBox>
+
+                <ProgressIndicator fx:id="importProgress"/>
+            </VBox>
+        </Tab>
+
+        <Tab text="Generate">
+            <VBox spacing="14"
+                  style="-fx-background-color: #161742; -fx-background-radius: 14; -fx-padding: 22;">
+
+                <Label text="Generate Sentence"
+                       style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #fff7d6;"/>
+
+                <HBox spacing="10">
+                    <TextField fx:id="startWordField"
+                               promptText="Start word"
+                               prefWidth="200"
+                               style="-fx-background-color: #0f1028; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #a3a3c2; -fx-border-color: #facc15;"/>
+
+                    <TextField fx:id="maxWordsField"
+                               promptText="Max words"
+                               prefWidth="120"
+                               style="-fx-background-color: #0f1028; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #a3a3c2; -fx-border-color: #facc15;"/>
+
+                    <Button text="Most Frequent"
+                            onAction="#handleGenerateMostFrequent"
+                            style="-fx-background-color: #facc15; -fx-text-fill: #0f1028; -fx-font-weight: bold;"/>
+
+                    <Button text="Random Top 3"
+                            onAction="#handleGenerateRandomTop3"
+                            style="-fx-background-color: #eab308; -fx-text-fill: #0f1028; -fx-font-weight: bold;"/>
+
+                    <Button text="Clear"
+                            onAction="#handleClearOutput"
+                            style="-fx-background-color: #b88700; -fx-text-fill: #ffffff; -fx-font-weight: bold;"/>
+                </HBox>
+
+                <TextArea fx:id="generatedSentenceArea"
+                          prefHeight="450"
+                          wrapText="true"
+                          editable="false"
+                          promptText="Generated sentence appears here."
+                          style="-fx-control-inner-background: #0f1028; -fx-text-fill: #ffffff; -fx-font-family: monospace; -fx-border-color: #facc15;"/>
+            </VBox>
+        </Tab>
+
+        <Tab text="Autocomplete">
+            <VBox spacing="14"
+                  style="-fx-background-color: #161742; -fx-background-radius: 14; -fx-padding: 22;">
+
+                <Label text="Word-by-Word Autocomplete"
+                       style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #fff7d6;"/>
+
+                <Label text="Type naturally. Suggestions update only after you type a space or comma."
+                       wrapText="true"
+                       style="-fx-text-fill: #ffffff;"/>
+
+                <TextArea fx:id="autocompleteTypingArea"
+                          promptText="Start typing here. Example: the "
+                          prefHeight="180"
+                          wrapText="true"
+                          onKeyReleased="#handleAutocompleteTyping"
+                          style="-fx-control-inner-background: #0f1028; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #a3a3c2; -fx-border-color: #facc15;"/>
+
+                <Label fx:id="lastCompletedWordLabel"
+                       text="Last completed word: none"
+                       style="-fx-text-fill: #facc15; -fx-font-weight: bold;"/>
+
+                <Label text="Suggested next words"
+                       style="-fx-text-fill: #fff7d6; -fx-font-weight: bold;"/>
+
+                <ScrollPane fitToHeight="true"
+                            fitToWidth="true"
+                            hbarPolicy="AS_NEEDED"
+                            vbarPolicy="NEVER"
+                            style="-fx-background-color: transparent; -fx-border-color: #facc15;">
+
+                    <HBox fx:id="suggestionBox"
+                          spacing="10"
+                          style="-fx-padding: 12; -fx-background-color: #0f1028;"/>
+                </ScrollPane>
+
+                <Button text="Clear Autocomplete"
+                        onAction="#handleClearAutocomplete"
+                        style="-fx-background-color: #b88700; -fx-text-fill: #ffffff; -fx-font-weight: bold;"/>
+            </VBox>
+        </Tab>
+
+        <Tab text="Words / Edit">
+            <VBox spacing="14"
+                  style="-fx-background-color: #161742; -fx-background-radius: 14; -fx-padding: 22;">
+
+                <Label text="Words in Database"
+                       style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #fff7d6;"/>
+
+                <HBox spacing="10">
+                    <Button text="Sort A-Z"
+                            onAction="#handleLoadWordsAlphabetically"
+                            style="-fx-background-color: #facc15; -fx-text-fill: #0f1028; -fx-font-weight: bold;"/>
+
+                    <Button text="Sort by Frequency"
+                            onAction="#handleLoadWordsByFrequency"
+                            style="-fx-background-color: #eab308; -fx-text-fill: #0f1028; -fx-font-weight: bold;"/>
+
+                    <Button text="Refresh"
+                            onAction="#handleRefreshReports"
+                            style="-fx-background-color: #b88700; -fx-text-fill: #ffffff; -fx-font-weight: bold;"/>
+                </HBox>
+
+                <TableView fx:id="wordsTable" prefHeight="360"
+                           style="-fx-background-color: #0f1028; -fx-border-color: #facc15;">
+                    <columns>
+                        <TableColumn fx:id="wordIdColumn" text="ID" prefWidth="60"/>
+                        <TableColumn fx:id="wordTextColumn" text="Word" prefWidth="160"/>
+                        <TableColumn fx:id="totalOccurrencesColumn" text="Occurrences" prefWidth="120"/>
+                        <TableColumn fx:id="startCountColumn" text="Start Count" prefWidth="110"/>
+                        <TableColumn fx:id="endCountColumn" text="End Count" prefWidth="110"/>
+                        <TableColumn fx:id="canStartColumn" text="Can Start" prefWidth="100"/>
+                        <TableColumn fx:id="canEndColumn" text="Can End" prefWidth="100"/>
+                    </columns>
+                </TableView>
+
+                <Label text="Modify Selected Word Metadata"
+                       style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #fff7d6;"/>
+
+                <GridPane hgap="10" vgap="10">
+                    <Label text="Word ID:" GridPane.rowIndex="0" GridPane.columnIndex="0"
+                           style="-fx-text-fill: #ffffff;"/>
+                    <TextField fx:id="editWordIdField" editable="false" GridPane.rowIndex="0" GridPane.columnIndex="1"
+                               style="-fx-background-color: #0f1028; -fx-text-fill: #ffffff; -fx-border-color: #facc15;"/>
+
+                    <Label text="Total Occurrences:" GridPane.rowIndex="0" GridPane.columnIndex="2"
+                           style="-fx-text-fill: #ffffff;"/>
+                    <TextField fx:id="editTotalOccurrencesField" GridPane.rowIndex="0" GridPane.columnIndex="3"
+                               style="-fx-background-color: #0f1028; -fx-text-fill: #ffffff; -fx-border-color: #facc15;"/>
+
+                    <Label text="Start Count:" GridPane.rowIndex="1" GridPane.columnIndex="0"
+                           style="-fx-text-fill: #ffffff;"/>
+                    <TextField fx:id="editStartCountField" GridPane.rowIndex="1" GridPane.columnIndex="1"
+                               style="-fx-background-color: #0f1028; -fx-text-fill: #ffffff; -fx-border-color: #facc15;"/>
+
+                    <Label text="End Count:" GridPane.rowIndex="1" GridPane.columnIndex="2"
+                           style="-fx-text-fill: #ffffff;"/>
+                    <TextField fx:id="editEndCountField" GridPane.rowIndex="1" GridPane.columnIndex="3"
+                               style="-fx-background-color: #0f1028; -fx-text-fill: #ffffff; -fx-border-color: #facc15;"/>
+
+                    <CheckBox fx:id="editCanStartCheckBox" text="Can Start Sentence" GridPane.rowIndex="2" GridPane.columnIndex="0"
+                              style="-fx-text-fill: #ffffff;"/>
+                    <CheckBox fx:id="editCanEndCheckBox" text="Can End Sentence" GridPane.rowIndex="2" GridPane.columnIndex="1"
+                              style="-fx-text-fill: #ffffff;"/>
+
+                    <Button text="Update Word"
+                            onAction="#handleUpdateWord"
+                            GridPane.rowIndex="2"
+                            GridPane.columnIndex="3"
+                            style="-fx-background-color: #facc15; -fx-text-fill: #0f1028; -fx-font-weight: bold;"/>
+                </GridPane>
+            </VBox>
+        </Tab>
+
+        <Tab text="Reports">
+            <VBox spacing="12"
+                  style="-fx-background-color: #161742; -fx-background-radius: 14; -fx-padding: 22;">
+
+                <Button text="Refresh Reports"
+                        onAction="#handleRefreshReports"
+                        style="-fx-background-color: #facc15; -fx-text-fill: #0f1028; -fx-font-weight: bold;"/>
+
+                <Label text="Imported Files"
+                       style="-fx-text-fill: #fff7d6; -fx-font-weight: bold;"/>
+                <ListView fx:id="booksList" prefHeight="120"
+                          style="-fx-control-inner-background: #0f1028; -fx-border-color: #facc15;"/>
+
+                <Label text="Generated Sentences"
+                       style="-fx-text-fill: #fff7d6; -fx-font-weight: bold;"/>
+                <ListView fx:id="generatedSentencesList" prefHeight="150"
+                          style="-fx-control-inner-background: #0f1028; -fx-border-color: #facc15;"/>
+
+                <Label text="Duplicate Generated Sentences"
+                       style="-fx-text-fill: #fff7d6; -fx-font-weight: bold;"/>
+                <ListView fx:id="duplicatesList" prefHeight="120"
+                          style="-fx-control-inner-background: #0f1028; -fx-border-color: #facc15;"/>
+            </VBox>
+        </Tab>
+
+    </TabPane>
+</VBox>

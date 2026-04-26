@@ -1,0 +1,219 @@
+.root {
+    -fx-background-color: #08091f;
+    -fx-font-family: "SF Pro Display", "Avenir Next", "Helvetica Neue", Arial;
+}
+
+.hero-card {
+    -fx-background-color: linear-gradient(to right, #12143b, #17194f);
+    -fx-background-radius: 24;
+    -fx-padding: 26;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 22, 0.25, 0, 8);
+}
+
+.hero-title {
+    -fx-font-size: 34px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #fff7d6;
+}
+
+.hero-subtitle {
+    -fx-font-size: 15px;
+    -fx-text-fill: #facc15;
+}
+
+.status-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #ffffff;
+}
+
+.modern-tabs {
+    -fx-background-color: transparent;
+}
+
+.modern-tabs .tab-header-area {
+    -fx-padding: 16 0 0 0;
+}
+
+.modern-tabs .tab-header-background {
+    -fx-background-color: transparent;
+}
+
+.modern-tabs .tab {
+    -fx-background-color: #12143b;
+    -fx-background-radius: 16 16 0 0;
+    -fx-padding: 10 22;
+}
+
+.modern-tabs .tab:selected {
+    -fx-background-color: #facc15;
+}
+
+.modern-tabs .tab-label {
+    -fx-text-fill: #fff7d6;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+}
+
+.modern-tabs .tab:selected .tab-label {
+    -fx-text-fill: #08091f;
+}
+
+.content-card {
+    -fx-background-color: #12143b;
+    -fx-background-radius: 0 24 24 24;
+    -fx-padding: 28;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.28), 18, 0.2, 0, 8);
+}
+
+.section-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #fff7d6;
+}
+
+.helper-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: #d6d8ff;
+}
+
+.small-heading {
+    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #fff7d6;
+}
+
+.accent-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #facc15;
+}
+
+.form-label {
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: 600;
+}
+
+.input {
+    -fx-background-color: #08091f;
+    -fx-text-fill: #ffffff;
+    -fx-prompt-text-fill: #8d90b8;
+    -fx-border-color: #2f326f;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-padding: 11 14;
+    -fx-font-size: 14px;
+}
+
+.input:focused {
+    -fx-border-color: #facc15;
+}
+
+.large-text-area {
+    -fx-control-inner-background: #08091f;
+    -fx-text-fill: #ffffff;
+    -fx-prompt-text-fill: #8d90b8;
+    -fx-border-color: #2f326f;
+    -fx-border-radius: 18;
+    -fx-background-radius: 18;
+    -fx-font-size: 14px;
+    -fx-font-family: "SF Mono", "Menlo", monospace;
+}
+
+.large-text-area:focused {
+    -fx-border-color: #facc15;
+}
+
+.button-primary {
+    -fx-background-color: #facc15;
+    -fx-text-fill: #08091f;
+    -fx-font-weight: 800;
+    -fx-font-size: 14px;
+    -fx-background-radius: 16;
+    -fx-padding: 10 18;
+    -fx-cursor: hand;
+}
+
+.button-secondary {
+    -fx-background-color: #eab308;
+    -fx-text-fill: #08091f;
+    -fx-font-weight: 800;
+    -fx-font-size: 14px;
+    -fx-background-radius: 16;
+    -fx-padding: 10 18;
+    -fx-cursor: hand;
+}
+
+.button-muted {
+    -fx-background-color: #8f6f00;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: 800;
+    -fx-font-size: 14px;
+    -fx-background-radius: 16;
+    -fx-padding: 10 18;
+    -fx-cursor: hand;
+}
+
+.button-primary:hover,
+.button-secondary:hover,
+.button-muted:hover {
+    -fx-opacity: 0.85;
+}
+
+.suggestion-scroll {
+    -fx-background-color: #08091f;
+    -fx-background-radius: 18;
+    -fx-border-color: #2f326f;
+    -fx-border-radius: 18;
+    -fx-padding: 6;
+}
+
+.suggestion-box {
+    -fx-background-color: #08091f;
+    -fx-padding: 12;
+}
+
+.modern-table {
+    -fx-background-color: #08091f;
+    -fx-border-color: #2f326f;
+    -fx-border-radius: 18;
+    -fx-background-radius: 18;
+}
+
+.modern-table .column-header-background {
+    -fx-background-color: #17194f;
+}
+
+.modern-table .column-header,
+.modern-table .filler {
+    -fx-background-color: #17194f;
+}
+
+.modern-table .column-header .label {
+    -fx-text-fill: #fff7d6;
+    -fx-font-weight: 800;
+}
+
+.modern-table .table-row-cell {
+    -fx-background-color: #08091f;
+    -fx-text-fill: white;
+}
+
+.modern-table .table-row-cell:odd {
+    -fx-background-color: #0d0f2e;
+}
+
+.modern-table .table-row-cell:selected {
+    -fx-background-color: #2f326f;
+}
+
+.modern-list {
+    -fx-control-inner-background: #08091f;
+    -fx-border-color: #2f326f;
+    -fx-border-radius: 18;
+    -fx-background-radius: 18;
+}
+
+.check {
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: 600;
+}

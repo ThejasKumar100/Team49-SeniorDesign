@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Run Sentence Builder UI",
+      "request": "launch",
+      "mainClass": "Main",
+      "vmArgs": "--module-path /Users/vaishtaruni/Desktop/SentenceBuilder/lib --add-modules javafx.controls,javafx.fxml -Dprism.order=sw"
+    }
+  ]
+}
