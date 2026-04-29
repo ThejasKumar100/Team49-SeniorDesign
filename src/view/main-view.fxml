@@ -16,7 +16,7 @@
 
     <VBox spacing="6"
           style="-fx-background-color: #161742; -fx-background-radius: 16; -fx-padding: 18;">
-        <Label text="Sentence Builder"
+        <Label text="WordFlow"
                style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #fff7d6;"/>
 
         <Label text="JavaFX + MySQL word generation system"
