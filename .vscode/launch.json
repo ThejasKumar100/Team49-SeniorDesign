@@ -1,4 +1,5 @@
 {
+  "_comment": "VS Code launch configuration for running the JavaFX Sentence Builder app. Specifies the Main class and includes VM arguments to load JavaFX modules from the local lib folder. The prism.order=sw flag forces software rendering to avoid graphics pipeline issues on some systems.",
   "version": "0.2.0",
   "configurations": [
     {
