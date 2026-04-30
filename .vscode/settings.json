@@ -1,4 +1,5 @@
 {
+  "_comment": "Tells VS Code to include all JAR files inside the lib folder (and subfolders) as dependencies for the Java project. This is used to load external libraries like JavaFX.",
   "java.project.referencedLibraries": [
     "lib/**/*.jar"
   ]

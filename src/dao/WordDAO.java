@@ -8,6 +8,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Data Access Object (DAO) for the Words table.
+ *
+ * This class handles all database operations related to words in the system,
+ * including:
+ * - Retrieving words by text or ID
+ * - Inserting new words into the database
+ * - Updating word occurrence counts and metadata
+ * - Fetching sorted word lists for UI display
+ *
+ * It acts as the bridge between the application logic and the MySQL database,
+ * ensuring all SQL queries and data mappings are centralized and reusable.
+ *
+ * Key responsibilities:
+ * - Maintain word frequency statistics
+ * - Track sentence start/end behavior
+ * - Provide data for sentence generation and autocomplete features
+ */
 public class WordDAO {
 
     public Optional<Word> findByText(String wordText) throws SQLException {
@@ -175,6 +193,10 @@ public class WordDAO {
         return words;
     }
 
+    /**
+     * Maps a database row (ResultSet) to a Word object.
+     * This ensures consistent object creation across all queries.
+     */
     private Word mapRow(ResultSet rs) throws SQLException {
         return new Word(
                 rs.getInt("word_id"),
