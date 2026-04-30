@@ -20,7 +20,7 @@
                style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #fff7d6;"/>
 
         <Label text="JavaFX + MySQL word generation system"
-               style="-fx-font-size: 14px; -fx-text-fill: #facc15;"/>
+               style="-fx-font-size: 15px; -fx-text-fill: #facc15;"/>
 
         <Label fx:id="statusLabel"
                text="Ready."
