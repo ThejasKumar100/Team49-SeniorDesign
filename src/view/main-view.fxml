@@ -1,96 +1,141 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!-- Kaavya:
+    Main UI Layout for WordFlow Application
+
+    This FXML file defines the full JavaFX user interface for the
+    WordFlow sentence generation system.
+
+    Main features:
+    - Import text files
+    - Generate sentences from stored word relationships
+    - Provide autocomplete suggestions
+    - View and edit word metadata
+    - Display reports for imported files and generated sentences
+
+    Controller:
+    controller.MainController
+-->
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<!-- Root container for the entire application window -->
 <VBox spacing="14"
       xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="controller.MainController"
       style="-fx-background-color: #0f1028;">
 
+    <!-- Adds padding around the entire application layout -->
     <padding>
         <Insets top="18" right="18" bottom="18" left="18"/>
     </padding>
 
+    <!-- Header section with app title, subtitle, and status message -->
     <VBox spacing="6"
           style="-fx-background-color: #161742; -fx-background-radius: 16; -fx-padding: 18;">
+
+        <!-- Main application title -->
         <Label text="WordFlow"
                style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #fff7d6;"/>
 
+        <!-- Short application description -->
         <Label text="JavaFX + MySQL word generation system"
-               style="-fx-font-size: 15px; -fx-text-fill: #facc15;"/>
+               style="-fx-font-size: 14px; -fx-text-fill: #facc15;"/>
 
+        <!-- Status label updated by the controller during user actions -->
         <Label fx:id="statusLabel"
                text="Ready."
                style="-fx-font-size: 13px; -fx-text-fill: #ffffff;"/>
     </VBox>
 
+    <!-- TabPane organizes the application into separate feature sections -->
     <TabPane tabClosingPolicy="UNAVAILABLE"
              VBox.vgrow="ALWAYS"
              style="-fx-background-color: #0f1028;">
 
+        <!-- Import tab allows users to choose and import text files -->
         <Tab text="Import">
             <VBox spacing="14"
                   style="-fx-background-color: #161742; -fx-background-radius: 14; -fx-padding: 22;">
+
+                <!-- Section title -->
                 <Label text="Import Text File"
                        style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #fff7d6;"/>
 
+                <!-- Instructions for the user -->
                 <Label text="Choose a text-only Gutenberg file or another plain .txt file."
                        wrapText="true"
                        style="-fx-text-fill: #ffffff;"/>
 
+                <!-- Row containing file path input, browse button, and import button -->
                 <HBox spacing="10">
+
+                    <!-- Displays or accepts the path to the selected .txt file -->
                     <TextField fx:id="filePathField"
                                promptText="Path to .txt file"
                                prefWidth="700"
                                style="-fx-background-color: #0f1028; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #a3a3c2; -fx-border-color: #facc15; -fx-border-radius: 8;"/>
 
+                    <!-- Opens file chooser so the user can browse for a text file -->
                     <Button text="Browse"
                             onAction="#handleBrowseFile"
                             style="-fx-background-color: #facc15; -fx-text-fill: #0f1028; -fx-font-weight: bold;"/>
 
+                    <!-- Starts the import process for the selected file -->
                     <Button text="Import"
                             onAction="#handleImportFile"
                             style="-fx-background-color: #d4a900; -fx-text-fill: #0f1028; -fx-font-weight: bold;"/>
                 </HBox>
 
+                <!-- Shows visual progress while a file is being imported -->
                 <ProgressIndicator fx:id="importProgress"/>
             </VBox>
         </Tab>
 
+        <!-- Generate tab creates sentences from words stored in the database -->
         <Tab text="Generate">
             <VBox spacing="14"
                   style="-fx-background-color: #161742; -fx-background-radius: 14; -fx-padding: 22;">
 
+                <!-- Section title -->
                 <Label text="Generate Sentence"
                        style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #fff7d6;"/>
 
+                <!-- Row containing generation inputs and controls -->
                 <HBox spacing="10">
+
+                    <!-- Starting word used as the first word in sentence generation -->
                     <TextField fx:id="startWordField"
                                promptText="Start word"
                                prefWidth="200"
                                style="-fx-background-color: #0f1028; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #a3a3c2; -fx-border-color: #facc15;"/>
 
+                    <!-- Maximum number of words allowed in the generated sentence -->
                     <TextField fx:id="maxWordsField"
                                promptText="Max words"
                                prefWidth="120"
                                style="-fx-background-color: #0f1028; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #a3a3c2; -fx-border-color: #facc15;"/>
 
+                    <!-- Generates a sentence using the most frequent next-word relationship -->
                     <Button text="Most Frequent"
                             onAction="#handleGenerateMostFrequent"
                             style="-fx-background-color: #facc15; -fx-text-fill: #0f1028; -fx-font-weight: bold;"/>
 
+                    <!-- Generates a sentence using a random option from the top 3 next-word choices -->
                     <Button text="Random Top 3"
                             onAction="#handleGenerateRandomTop3"
                             style="-fx-background-color: #eab308; -fx-text-fill: #0f1028; -fx-font-weight: bold;"/>
 
+                    <!-- Clears the generated sentence output area -->
                     <Button text="Clear"
                             onAction="#handleClearOutput"
                             style="-fx-background-color: #b88700; -fx-text-fill: #ffffff; -fx-font-weight: bold;"/>
                 </HBox>
 
+                <!-- Displays the generated sentence result -->
                 <TextArea fx:id="generatedSentenceArea"
                           prefHeight="450"
                           wrapText="true"
@@ -100,17 +145,25 @@
             </VBox>
         </Tab>
 
+        <!-- Autocomplete tab suggests likely next words as the user types -->
         <Tab text="Autocomplete">
             <VBox spacing="14"
                   style="-fx-background-color: #161742; -fx-background-radius: 14; -fx-padding: 22;">
 
+                <!-- Section title -->
                 <Label text="Word-by-Word Autocomplete"
                        style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #fff7d6;"/>
 
+                <!-- User instructions for autocomplete behavior -->
                 <Label text="Type naturally. Suggestions update only after you type a space or comma."
                        wrapText="true"
                        style="-fx-text-fill: #ffffff;"/>
 
+                <!--
+                    User typing area.
+                    The controller reads the last completed word after a space or comma
+                    and updates suggestions based on database word relationships.
+                -->
                 <TextArea fx:id="autocompleteTypingArea"
                           promptText="Start typing here. Example: the "
                           prefHeight="180"
@@ -118,93 +171,130 @@
                           onKeyReleased="#handleAutocompleteTyping"
                           style="-fx-control-inner-background: #0f1028; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #a3a3c2; -fx-border-color: #facc15;"/>
 
+                <!-- Displays the latest completed word used for generating suggestions -->
                 <Label fx:id="lastCompletedWordLabel"
                        text="Last completed word: none"
                        style="-fx-text-fill: #facc15; -fx-font-weight: bold;"/>
 
+                <!-- Label for the suggestion display area -->
                 <Label text="Suggested next words"
                        style="-fx-text-fill: #fff7d6; -fx-font-weight: bold;"/>
 
+                <!-- ScrollPane allows suggestions to scroll horizontally if there are many options -->
                 <ScrollPane fitToHeight="true"
                             fitToWidth="true"
                             hbarPolicy="AS_NEEDED"
                             vbarPolicy="NEVER"
                             style="-fx-background-color: transparent; -fx-border-color: #facc15;">
 
+                    <!-- Dynamic container where suggested words are added by the controller -->
                     <HBox fx:id="suggestionBox"
                           spacing="10"
                           style="-fx-padding: 12; -fx-background-color: #0f1028;"/>
                 </ScrollPane>
 
+                <!-- Clears the autocomplete input and suggestion list -->
                 <Button text="Clear Autocomplete"
                         onAction="#handleClearAutocomplete"
                         style="-fx-background-color: #b88700; -fx-text-fill: #ffffff; -fx-font-weight: bold;"/>
             </VBox>
         </Tab>
 
+        <!-- Words/Edit tab displays stored word data and allows metadata changes -->
         <Tab text="Words / Edit">
             <VBox spacing="14"
                   style="-fx-background-color: #161742; -fx-background-radius: 14; -fx-padding: 22;">
 
+                <!-- Section title -->
                 <Label text="Words in Database"
                        style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #fff7d6;"/>
 
+                <!-- Controls for sorting and refreshing word data -->
                 <HBox spacing="10">
+
+                    <!-- Loads words sorted alphabetically -->
                     <Button text="Sort A-Z"
                             onAction="#handleLoadWordsAlphabetically"
                             style="-fx-background-color: #facc15; -fx-text-fill: #0f1028; -fx-font-weight: bold;"/>
 
+                    <!-- Loads words sorted by number of occurrences -->
                     <Button text="Sort by Frequency"
                             onAction="#handleLoadWordsByFrequency"
                             style="-fx-background-color: #eab308; -fx-text-fill: #0f1028; -fx-font-weight: bold;"/>
 
+                    <!-- Refreshes table and report data -->
                     <Button text="Refresh"
                             onAction="#handleRefreshReports"
                             style="-fx-background-color: #b88700; -fx-text-fill: #ffffff; -fx-font-weight: bold;"/>
                 </HBox>
 
+                <!-- Table showing words and their metadata from the database -->
                 <TableView fx:id="wordsTable" prefHeight="360"
                            style="-fx-background-color: #0f1028; -fx-border-color: #facc15;">
                     <columns>
+                        <!-- Unique database ID for the word -->
                         <TableColumn fx:id="wordIdColumn" text="ID" prefWidth="60"/>
+
+                        <!-- Actual word text -->
                         <TableColumn fx:id="wordTextColumn" text="Word" prefWidth="160"/>
+
+                        <!-- Total number of times the word appears -->
                         <TableColumn fx:id="totalOccurrencesColumn" text="Occurrences" prefWidth="120"/>
+
+                        <!-- Number of times the word starts a sentence -->
                         <TableColumn fx:id="startCountColumn" text="Start Count" prefWidth="110"/>
+
+                        <!-- Number of times the word ends a sentence -->
                         <TableColumn fx:id="endCountColumn" text="End Count" prefWidth="110"/>
+
+                        <!-- Whether the word can start a sentence -->
                         <TableColumn fx:id="canStartColumn" text="Can Start" prefWidth="100"/>
+
+                        <!-- Whether the word can end a sentence -->
                         <TableColumn fx:id="canEndColumn" text="Can End" prefWidth="100"/>
                     </columns>
                 </TableView>
 
+                <!-- Form title for editing selected word metadata -->
                 <Label text="Modify Selected Word Metadata"
                        style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #fff7d6;"/>
 
+                <!-- Grid layout for selected word metadata fields -->
                 <GridPane hgap="10" vgap="10">
+
+                    <!-- Read-only word ID field -->
                     <Label text="Word ID:" GridPane.rowIndex="0" GridPane.columnIndex="0"
                            style="-fx-text-fill: #ffffff;"/>
                     <TextField fx:id="editWordIdField" editable="false" GridPane.rowIndex="0" GridPane.columnIndex="1"
                                style="-fx-background-color: #0f1028; -fx-text-fill: #ffffff; -fx-border-color: #facc15;"/>
 
+                    <!-- Editable total occurrence count -->
                     <Label text="Total Occurrences:" GridPane.rowIndex="0" GridPane.columnIndex="2"
                            style="-fx-text-fill: #ffffff;"/>
                     <TextField fx:id="editTotalOccurrencesField" GridPane.rowIndex="0" GridPane.columnIndex="3"
                                style="-fx-background-color: #0f1028; -fx-text-fill: #ffffff; -fx-border-color: #facc15;"/>
 
+                    <!-- Editable start count -->
                     <Label text="Start Count:" GridPane.rowIndex="1" GridPane.columnIndex="0"
                            style="-fx-text-fill: #ffffff;"/>
                     <TextField fx:id="editStartCountField" GridPane.rowIndex="1" GridPane.columnIndex="1"
                                style="-fx-background-color: #0f1028; -fx-text-fill: #ffffff; -fx-border-color: #facc15;"/>
 
+                    <!-- Editable end count -->
                     <Label text="End Count:" GridPane.rowIndex="1" GridPane.columnIndex="2"
                            style="-fx-text-fill: #ffffff;"/>
                     <TextField fx:id="editEndCountField" GridPane.rowIndex="1" GridPane.columnIndex="3"
                                style="-fx-background-color: #0f1028; -fx-text-fill: #ffffff; -fx-border-color: #facc15;"/>
 
+                    <!-- Marks whether the selected word can start a sentence -->
                     <CheckBox fx:id="editCanStartCheckBox" text="Can Start Sentence" GridPane.rowIndex="2" GridPane.columnIndex="0"
                               style="-fx-text-fill: #ffffff;"/>
+
+                    <!-- Marks whether the selected word can end a sentence -->
                     <CheckBox fx:id="editCanEndCheckBox" text="Can End Sentence" GridPane.rowIndex="2" GridPane.columnIndex="1"
                               style="-fx-text-fill: #ffffff;"/>
 
+                    <!-- Saves updated word metadata to the database -->
                     <Button text="Update Word"
                             onAction="#handleUpdateWord"
                             GridPane.rowIndex="2"
@@ -214,26 +304,37 @@
             </VBox>
         </Tab>
 
+        <!-- Reports tab displays imported files, generated sentences, and duplicates -->
         <Tab text="Reports">
             <VBox spacing="12"
                   style="-fx-background-color: #161742; -fx-background-radius: 14; -fx-padding: 22;">
 
+                <!-- Refreshes all report lists -->
                 <Button text="Refresh Reports"
                         onAction="#handleRefreshReports"
                         style="-fx-background-color: #facc15; -fx-text-fill: #0f1028; -fx-font-weight: bold;"/>
 
+                <!-- Imported file report section -->
                 <Label text="Imported Files"
                        style="-fx-text-fill: #fff7d6; -fx-font-weight: bold;"/>
+
+                <!-- Displays files/books imported into the system -->
                 <ListView fx:id="booksList" prefHeight="120"
                           style="-fx-control-inner-background: #0f1028; -fx-border-color: #facc15;"/>
 
+                <!-- Generated sentence report section -->
                 <Label text="Generated Sentences"
                        style="-fx-text-fill: #fff7d6; -fx-font-weight: bold;"/>
+
+                <!-- Displays previously generated sentences -->
                 <ListView fx:id="generatedSentencesList" prefHeight="150"
                           style="-fx-control-inner-background: #0f1028; -fx-border-color: #facc15;"/>
 
+                <!-- Duplicate generated sentence report section -->
                 <Label text="Duplicate Generated Sentences"
                        style="-fx-text-fill: #fff7d6; -fx-font-weight: bold;"/>
+
+                <!-- Displays repeated generated sentence outputs -->
                 <ListView fx:id="duplicatesList" prefHeight="120"
                           style="-fx-control-inner-background: #0f1028; -fx-border-color: #facc15;"/>
             </VBox>
