@@ -209,12 +209,22 @@ public class MainController {
 
             if (lastChar == ' ' || lastChar == ',') {
                 String completedWord = getLastCompletedWord(text);
+                System.out.println("DEBUG: Completed word extracted: '" + completedWord + "'");
 
                 if (completedWord.isEmpty()) {
+                    System.out.println("DEBUG: Completed word is empty, returning");
                     return;
                 }
 
-                autocompleteService.addUnknownWordIfMissing(completedWord);
+                // Check if word exists in database
+                boolean wordExists = wordDAO.findByText(completedWord).isPresent();
+                System.out.println("DEBUG: Word '" + completedWord + "' exists in database: " + wordExists);
+                
+                if (!wordExists) {
+                    System.out.println("DEBUG: Word not found, calling promptToAddUnknownWord");
+                    // Prompt user to add unknown word
+                    promptToAddUnknownWord(completedWord);
+                }
 
                 List<String> suggestions = autocompleteService.suggestNextWords(completedWord);
                 displaySuggestions(suggestions);
@@ -231,8 +241,44 @@ public class MainController {
             }
 
         } catch (Exception e) {
+            System.err.println("DEBUG: Exception in handleAutocompleteTyping: " + e);
+            e.printStackTrace();
             showError("Autocomplete failed: " + e.getMessage());
         }
+    }
+
+    private void promptToAddUnknownWord(String word) {
+        System.out.println("DEBUG: Prompting to add unknown word: " + word);
+        
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Unknown Word");
+        alert.setHeaderText("Word not found in database");
+        alert.setContentText("\"" + word + "\" is not in the word database.\n\nWould you like to add it?");
+
+        ButtonType yesButton = new ButtonType("Add Word", ButtonBar.ButtonData.YES);
+        ButtonType noButton = new ButtonType("Skip", ButtonBar.ButtonData.NO);
+
+        alert.getButtonTypes().setAll(yesButton, noButton);
+        
+        System.out.println("DEBUG: Dialog created, about to show");
+
+        alert.showAndWait().ifPresent(result -> {
+            System.out.println("DEBUG: Dialog result received: " + result);
+            if (result == yesButton) {
+                try {
+                    System.out.println("DEBUG: User clicked Add Word");
+                    wordDAO.insertUnknownWordIfMissing(word);
+                    statusLabel.setText("Word added: " + word);
+                    loadWordsAlphabetically();
+                } catch (Exception e) {
+                    System.err.println("DEBUG: Exception while adding word: " + e);
+                    showError("Failed to add word: " + e.getMessage());
+                }
+            } else {
+                System.out.println("DEBUG: User clicked Skip");
+                statusLabel.setText("Word skipped: " + word);
+            }
+        });
     }
 
     private void displaySuggestions(List<String> suggestions) {
@@ -270,8 +316,7 @@ public class MainController {
         autocompleteTypingArea.positionCaret(autocompleteTypingArea.getText().length());
 
         try {
-            autocompleteService.addUnknownWordIfMissing(selectedWord);
-
+            // No need to add here - clicked suggestions are already in the database
             List<String> nextSuggestions = autocompleteService.suggestNextWords(selectedWord);
             displaySuggestions(nextSuggestions);
 
