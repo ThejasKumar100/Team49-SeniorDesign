@@ -3,6 +3,7 @@ package controller;
 import dao.BookDAO;
 import dao.GeneratedSentenceDAO;
 import dao.WordDAO;
+import dao.WordFollowerDAO;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -60,6 +61,12 @@ public class MainController {
     private final WordDAO wordDAO = new WordDAO();
     private final BookDAO bookDAO = new BookDAO();
     private final GeneratedSentenceDAO generatedSentenceDAO = new GeneratedSentenceDAO();
+    private final WordFollowerDAO wordFollowerDAO = new WordFollowerDAO();
+
+    private int lastCompletedWordId = -1;  // Track the last word's ID for word follower relationships
+    private String lastProcessedWordText = null;  // Guard against processing same word twice
+    private boolean lastProcessedWasSentenceEnd = false;  // Track if last processing was sentence-end
+    private String lastProcessedTextContent = null;  // Track text content to prevent reprocessing with only whitespace changes
 
     @FXML
     public void initialize() {
@@ -205,16 +212,48 @@ public class MainController {
                 return;
             }
 
-            char lastChar = text.charAt(text.length() - 1);
+            // Guard: if only whitespace was added after the last period, skip extraction
+            // This prevents re-extracting the same sentence-ending word when user types space/tab
+            String trimmedText = text.replaceAll("\\s+$", "");  // Remove trailing whitespace
+            if (trimmedText.equals(lastProcessedTextContent)) {
+                System.out.println("DEBUG: Text content unchanged (only whitespace added), skipping extraction");
+                return;
+            }
 
-            if (lastChar == ' ' || lastChar == ',') {
-                String completedWord = getLastCompletedWord(text);
-                System.out.println("DEBUG: Completed word extracted: '" + completedWord + "'");
+            char lastChar = text.charAt(text.length() - 1);
+            boolean endsWithPeriod = text.endsWith(".");
+
+            // Extract and process word if space, comma, or preceded by period
+            if (lastChar == ' ' || lastChar == ',' || endsWithPeriod) {
+                String completedWord;
+                boolean isSentenceEnd = false;
+                
+                if (endsWithPeriod) {
+                    // Extract word before period
+                    String withoutPeriod = text.substring(0, text.length() - 1);
+                    completedWord = getLastCompletedWord(withoutPeriod);
+                    isSentenceEnd = true;
+                } else {
+                    // Extract word normally (after space or comma)
+                    completedWord = getLastCompletedWord(text);
+                }
+
+                System.out.println("DEBUG: Completed word extracted: '" + completedWord + "', isSentenceEnd: " + isSentenceEnd);
 
                 if (completedWord.isEmpty()) {
                     System.out.println("DEBUG: Completed word is empty, returning");
                     return;
                 }
+
+                // Guard against processing the same word twice with same flags (happens on multiple keystroke events)
+                if (completedWord.equals(lastProcessedWordText) && isSentenceEnd == lastProcessedWasSentenceEnd) {
+                    System.out.println("DEBUG: Word '" + completedWord + "' already processed with same flags, skipping duplicate");
+                    return;
+                }
+
+                // Determine if this word starts a sentence (before we potentially reset lastCompletedWordId)
+                boolean startssentence = lastCompletedWordId == -1;
+                System.out.println("DEBUG: startssentence = " + startssentence + ", isSentenceEnd = " + isSentenceEnd);
 
                 // Check if word exists in database
                 boolean wordExists = wordDAO.findByText(completedWord).isPresent();
@@ -222,8 +261,37 @@ public class MainController {
                 
                 if (!wordExists) {
                     System.out.println("DEBUG: Word not found, calling promptToAddUnknownWord");
-                    // Prompt user to add unknown word
-                    promptToAddUnknownWord(completedWord);
+                    // Pass information about whether this word starts or ends a sentence
+                    promptToAddUnknownWord(completedWord, startssentence, isSentenceEnd);
+                } else {
+                    // Word already exists
+                    java.util.Optional<Word> currentWordOpt = wordDAO.findByText(completedWord);
+                    if (currentWordOpt.isPresent()) {
+                        Word currentWord = currentWordOpt.get();
+                        int currentWordId = currentWord.getWordId();
+                        
+                        try {
+                            // Use updateWordCounts to properly increment counts and set flags
+                            wordDAO.updateWordCounts(currentWordId, startssentence, isSentenceEnd);
+                            if (startssentence) {
+                                System.out.println("DEBUG: Updated existing word '" + completedWord + "' as sentence-starting");
+                            }
+                            if (isSentenceEnd) {
+                                System.out.println("DEBUG: Updated existing word '" + completedWord + "' as sentence-ending");
+                            }
+                        } catch (Exception e) {
+                            System.err.println("DEBUG: Exception updating word counts: " + e);
+                        }
+                        
+                        // Create follower relationship if we have a previous word
+                        if (lastCompletedWordId != -1) {
+                            System.out.println("DEBUG: Creating word follower relationship: " + lastCompletedWordId + " -> " + currentWordId);
+                            wordFollowerDAO.insertOrUpdateFollower(lastCompletedWordId, currentWordId);
+                        }
+                        
+                        lastCompletedWordId = currentWordId;
+                        System.out.println("DEBUG: Updated lastCompletedWordId to: " + lastCompletedWordId);
+                    }
                 }
 
                 List<String> suggestions = autocompleteService.suggestNextWords(completedWord);
@@ -237,6 +305,21 @@ public class MainController {
                     statusLabel.setText("Suggestions loaded for: " + completedWord);
                 }
 
+                // Track this word to prevent duplicate processing
+                lastProcessedWordText = completedWord;
+                lastProcessedWasSentenceEnd = isSentenceEnd;
+                lastProcessedTextContent = text.replaceAll("\\s+$", "");  // Save text without trailing whitespace
+                System.out.println("DEBUG: Tracked word '" + completedWord + "' as last processed (isSentenceEnd: " + isSentenceEnd + ")");
+                System.out.println("DEBUG: Saved text content: '" + lastProcessedTextContent + "'");
+
+                // If sentence ended, reset for next sentence
+                if (isSentenceEnd) {
+                    lastCompletedWordId = -1;
+                    lastProcessedWordText = null;  // Allow new sentence to start with any word
+                    lastProcessedWasSentenceEnd = false;
+                    System.out.println("DEBUG: Sentence ended, reset lastCompletedWordId for next sentence");
+                }
+
                 loadWordsAlphabetically();
             }
 
@@ -247,8 +330,8 @@ public class MainController {
         }
     }
 
-    private void promptToAddUnknownWord(String word) {
-        System.out.println("DEBUG: Prompting to add unknown word: " + word);
+    private void promptToAddUnknownWord(String word, boolean startssentence, boolean isSentenceEnd) {
+        System.out.println("DEBUG: Prompting to add unknown word: " + word + ", startssentence: " + startssentence + ", isSentenceEnd: " + isSentenceEnd);
         
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Unknown Word");
@@ -267,7 +350,18 @@ public class MainController {
             if (result == yesButton) {
                 try {
                     System.out.println("DEBUG: User clicked Add Word");
-                    wordDAO.insertUnknownWordIfMissing(word);
+                    System.out.println("DEBUG: Using passed flags - startssentence: " + startssentence + ", ends sentence: " + isSentenceEnd);
+                    
+                    int wordId = wordDAO.insertWord(word, startssentence, isSentenceEnd);
+                    
+                    // If there was a previous word, create the follower relationship
+                    if (lastCompletedWordId != -1) {
+                        System.out.println("DEBUG: Creating word follower relationship: " + lastCompletedWordId + " -> " + wordId);
+                        wordFollowerDAO.insertOrUpdateFollower(lastCompletedWordId, wordId);
+                    }
+                    
+                    lastCompletedWordId = wordId;
+                    System.out.println("DEBUG: Word added with ID: " + wordId);
                     statusLabel.setText("Word added: " + word);
                     loadWordsAlphabetically();
                 } catch (Exception e) {
@@ -335,6 +429,10 @@ public class MainController {
         autocompleteTypingArea.clear();
         suggestionBox.getChildren().clear();
         lastCompletedWordLabel.setText("Last completed word: none");
+        lastCompletedWordId = -1;  // Reset word ID tracker
+        lastProcessedWordText = null;  // Reset tracking for new sentence
+        lastProcessedWasSentenceEnd = false;
+        lastProcessedTextContent = null;  // Reset text content tracking
         statusLabel.setText("Autocomplete cleared.");
     }
 
